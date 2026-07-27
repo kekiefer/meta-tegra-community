@@ -1,0 +1,27 @@
+SUMMARY = "Spinning Vulkan cube demo"
+HOMEPAGE = "https://github.com/krh/vkcube"
+LICENSE = "MIT"
+LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/MIT;md5=0835ade698e0bcf8506ecda2f7b4f302"
+
+DEPENDS = "drm libpng virtual/libgbm vulkan-loader"
+
+REQUIRED_DISTRO_FEATURES = "vulkan"
+
+SRC_URI = "git://github.com/krh/vkcube.git;protocol=https;branch=master"
+SRCREV = "ffd566971fac916fc90d33a442369d5717ceb2a9"
+
+# Upstream repo does not tag
+UPSTREAM_CHECK_COMMITS = "1"
+
+inherit meson pkgconfig features_check
+
+PACKAGECONFIG ??= "${@bb.utils.filter('DISTRO_FEATURES', 'wayland x11', d)}"
+PACKAGECONFIG[wayland] = "-Dwayland=true,-Dwayland=false,wayland wayland-native wayland-protocols"
+PACKAGECONFIG[x11] = "-Dxcb=true,-Dxcb=false,virtual/libx11 libxcb"
+
+EXTRA_OEMESON += "--buildtype release"
+
+do_install() {
+    install -d ${D}${bindir}
+    install -m 0755 ${B}/vkcube ${D}${bindir}/
+}
